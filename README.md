@@ -72,9 +72,7 @@ Your Obsidian Vault
 ### Install
 
 ```bash
-git clone https://github.com/yourusername/clear-mind.git
-cd clear-mind
-pip install -e .
+pip install clear-mind
 ```
 
 ### Setup

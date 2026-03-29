@@ -41,9 +41,9 @@ dev = [
 clear-mind = "clear_mind.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/clear-mind"
-Repository = "https://github.com/yourusername/clear-mind"
-Issues = "https://github.com/yourusername/clear-mind/issues"
+Homepage = "https://github.com/slow-coding/clear_mind"
+Repository = "https://github.com/slow-coding/clear_mind"
+Issues = "https://github.com/slow-coding/clear_mind/issues"
 
 [build-system]
 requires = ["hatchling"]

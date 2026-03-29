@@ -72,9 +72,7 @@ Clear Mind 读懂你的笔记，理解你是谁，随时间推移和你一起成
 ### 安装
 
 ```bash
-git clone https://github.com/yourusername/clear-mind.git
-cd clear-mind
-pip install -e .
+pip install clear-mind
 ```
 
 ### 初始化
