@@ -54,6 +54,38 @@ def _agent_session(
 
 
 @app.command()
+def reset():
+    """Clear agent memory: checkpoint database and _clear_mind/ contents."""
+    config = _load_config()
+
+    # Remove checkpoint database
+    db = config.checkpoint_db
+    if db.exists():
+        db.unlink()
+        console.print(f"[green]Removed checkpoint: {db}[/]")
+    else:
+        console.print("[dim]No checkpoint database found.[/]")
+
+    # Reset _clear_mind/ files to initial state
+    from clear_mind.obsidian import ensure_agent_structure, set_vault_path
+
+    set_vault_path(config.vault_path, agent_folder=config.agent_folder)
+    agent_dir = config.agent_dir
+    if agent_dir.exists():
+        # Remove contents but keep directory structure
+        for f in agent_dir.iterdir():
+            if f.is_file():
+                f.unlink()
+            elif f.is_dir():
+                import shutil
+                shutil.rmtree(f)
+        console.print(f"[green]Cleared agent files in {agent_dir}[/]")
+
+    ensure_agent_structure()
+    console.print("[green]Agent memory reset complete. Run [cyan]clear-mind chat[/] to start fresh.[/]")
+
+
+@app.command()
 def init(
     vault: Path | None = typer.Option(None, "--vault", "-v", help="Path to Obsidian vault"),
     base_url: str | None = typer.Option(None, "--base-url", help="LLM API base URL"),

@@ -28,11 +28,16 @@ class ClearMindConfig(BaseSettings):
     heartbeat_enabled: bool = True
 
     # State
-    checkpointer_path: str = "~/_clear_mind_state/checkpoints.db"
+    checkpointer_path: str = ""  # Auto-resolved to vault's _clear_mind/ directory
 
     @property
     def agent_dir(self) -> Path:
         return self.vault_path / self.agent_folder
+
+    @property
+    def checkpoint_db(self) -> Path:
+        """Checkpoint database path inside vault's _clear_mind/ folder."""
+        return self.agent_dir / "checkpoints.db"
 
     def get_model(self):
         """Create an LLM instance configured for OpenAI-compatible APIs."""
@@ -52,6 +57,6 @@ class ClearMindConfig(BaseSettings):
         """
         from langgraph.checkpoint.sqlite import SqliteSaver
 
-        db_path = Path(self.checkpointer_path).expanduser()
+        db_path = self.checkpoint_db
         db_path.parent.mkdir(parents=True, exist_ok=True)
         return SqliteSaver.from_conn_string(str(db_path))
