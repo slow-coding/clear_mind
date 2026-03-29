@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="banner.png" alt="Clear Mind Banner" width="100%">
+  <img src="https://raw.githubusercontent.com/slow-coding/clear_mind/main/banner.png" alt="Clear Mind Banner" width="100%">
 </div>
 
 # Clear Mind（清心）
@@ -7,7 +7,7 @@
 [English](README.md)
 
 <div align="center">
-  <img src="guide.gif" alt="Clear Mind 演示" width="100%">
+  <img src="https://raw.githubusercontent.com/slow-coding/clear_mind/main/guide.gif" alt="Clear Mind 演示" width="100%">
 </div>
 
 **你和 AI 共管一个 Obsidian vault — 边界清晰，互不侵犯。**
