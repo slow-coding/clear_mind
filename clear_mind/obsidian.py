@@ -28,6 +28,15 @@ def _get_vault() -> Path:
     return _vault_path
 
 
+def _validate_write_path(note_path: str) -> Path:
+    """Validate a write path stays inside the vault (no boundary restriction)."""
+    vault = _get_vault()
+    resolved = (vault / note_path).resolve()
+    if not str(resolved).startswith(str(vault.resolve())):
+        raise ValueError("Path traversal detected. Rejected.")
+    return resolved
+
+
 def _validate_agent_path(note_path: str) -> Path:
     """Only allow writes inside the agent folder (_clear_mind/)."""
     vault = _get_vault()
@@ -180,7 +189,7 @@ def get_property(path: str, name: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Write tools (restricted to agent folder _clear_mind/)
+# Write tools — agent folder only (hard boundary)
 # ---------------------------------------------------------------------------
 
 
@@ -221,6 +230,35 @@ def set_property(path: str, name: str, value: str) -> str:
     """
     _validate_agent_path(path)
     return _run_cli("property:set", f"path={path}", f"name={name}", f"value={value}")
+
+
+# ---------------------------------------------------------------------------
+# Write tools — full vault access (only available via /card, /refactor)
+# ---------------------------------------------------------------------------
+
+
+@tool
+def write_note(path: str, content: str) -> str:
+    """Create or overwrite a note anywhere in the Obsidian vault.
+
+    Args:
+        path: Note path relative to vault root
+        content: Full note content in Markdown
+    """
+    _validate_write_path(path)
+    return _run_cli("create", f"path={path}", f"content={content}", "overwrite")
+
+
+@tool
+def append_note(path: str, content: str) -> str:
+    """Append content to a note anywhere in the Obsidian vault.
+
+    Args:
+        path: Note path relative to vault root
+        content: Content to append
+    """
+    _validate_write_path(path)
+    return _run_cli("append", f"path={path}", f"content={content}")
 
 
 # ---------------------------------------------------------------------------

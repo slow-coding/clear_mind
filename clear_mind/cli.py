@@ -47,10 +47,18 @@ def _agent_session(
     set_vault_path(config.vault_path, agent_folder=config.agent_folder)
     ensure_agent_structure()
 
+    # Pre-load knowledge rules
+    rules_path = config.agent_dir / "knowledge_rules.md"
+    knowledge_rules = ""
+    if rules_path.exists():
+        knowledge_rules = rules_path.read_text(encoding="utf-8")
+
     checkpointer_ctx = config.get_checkpointer()
     with checkpointer_ctx as checkpointer:
-        agent = create_clear_mind_agent(config, checkpointer)
-        yield agent, config
+        agent = create_clear_mind_agent(
+            config, checkpointer, knowledge_rules=knowledge_rules,
+        )
+        yield agent, config, checkpointer
 
 
 @app.command()
@@ -141,8 +149,14 @@ def chat(
     """Start an interactive chat session with your Clear Mind agent."""
     from clear_mind.agent import run_chat
 
-    with _agent_session(vault=vault, model=model) as (agent, _config):
-        run_chat(agent)
+    with console.status("[dim]Loading knowledge base...[/]"):
+        session = _agent_session(vault=vault, model=model)
+        agent, config, checkpointer = session.__enter__()
+
+    try:
+        run_chat(agent, config, checkpointer)
+    finally:
+        session.__exit__()
 
 
 @app.command()

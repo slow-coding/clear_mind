@@ -33,7 +33,7 @@ def handle_interrupt(console: Console, hitl_request: dict) -> dict:
             border_style="yellow",
         )
         console.print(panel)
-        console.print("[dim]  [a]pprove / [r]eject[/]")
+        console.print("[dim]  approve / reject  (a/r)[/]")
 
         while True:
             try:

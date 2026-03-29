@@ -46,6 +46,7 @@ class ClearMindConfig(BaseSettings):
             model_provider="openai",
             api_key=self.api_key,
             base_url=self.base_url,
+            streaming=True,
             timeout=300,
             max_retries=2,
         )

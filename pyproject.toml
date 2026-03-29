@@ -1,6 +1,6 @@
 [project]
 name = "clear-mind"
-version = "0.1.5"
+version = "0.1.6"
 description = "An AI companion that grows alongside you through your Obsidian notes"
 readme = "README.md"
 license = "MIT"
@@ -17,7 +17,6 @@ classifiers = [
     "Topic :: Office/Business",
 ]
 dependencies = [
-    "deepagents>=0.4.0",
     "langgraph>=0.4.0",
     "langgraph-checkpoint-sqlite>=2.0.0",
     "langchain-openai>=0.3.0",

@@ -15,6 +15,7 @@ def get_user_input(console: Console) -> str | None:
         The user's input string, or None if the user wants to exit.
     """
     from prompt_toolkit import prompt as pt_prompt
+    from prompt_toolkit.formatted_text import HTML
     from prompt_toolkit.key_binding import KeyBindings
 
     kb = KeyBindings()
@@ -42,13 +43,13 @@ def get_user_input(console: Console) -> str | None:
 
     try:
         result = pt_prompt(
-            "\x1b[1;32mYou\x1b[0m> ",
+            HTML("<ansigreen><b>You</b></ansigreen>> "),
             key_bindings=kb,
             multiline=False,
         )
     except KeyboardInterrupt:
-        # Ctrl+C cancels input, not conversation
-        return ""
+        # Ctrl+C exits conversation
+        return None
     except EOFError:
         # Ctrl+D exits
         return None
