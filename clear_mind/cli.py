@@ -64,7 +64,10 @@ def init(
     console.print("[bold cyan]Clear Mind Setup[/]\n")
 
     if vault is None:
-        vault_input = Prompt.ask("Obsidian vault path", default=".")
+        detected_vault = "." if (Path.cwd() / ".obsidian").exists() else None
+        if detected_vault:
+            console.print(f"[dim]Obsidian vault detected at {Path.cwd()}[/]")
+        vault_input = Prompt.ask("Obsidian vault path", default=detected_vault or ".")
         vault = Path(vault_input).expanduser().resolve()
     if not vault.exists():
         console.print(f"[red]Path does not exist: {vault}[/]")

@@ -305,6 +305,13 @@ INITIAL_ENTROPY_LOG = """\
 *Suggestions and actions that help maintain clarity and order in the vault.*
 """
 
+INITIAL_KNOWLEDGE_RULES = """\
+# Knowledge Base Rules
+
+*Rules learned by the agent about how this user organizes and uses their knowledge base. \
+The agent will gradually fill this document as patterns are discovered.*
+"""
+
 
 def ensure_agent_structure() -> None:
     """Create the _clear_mind/ folder structure if it doesn't exist."""
@@ -317,6 +324,7 @@ def ensure_agent_structure() -> None:
         "about_user.md": INITIAL_ABOUT_USER,
         "personality.md": INITIAL_PERSONALITY,
         "entropy_log.md": INITIAL_ENTROPY_LOG,
+        "knowledge_rules.md": INITIAL_KNOWLEDGE_RULES,
     }
     for name, content in files.items():
         path = agent_dir / name
