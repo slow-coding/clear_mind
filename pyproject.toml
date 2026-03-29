@@ -1,6 +1,6 @@
 [project]
 name = "clear-mind"
-version = "0.1.4"
+version = "0.1.5"
 description = "An AI companion that grows alongside you through your Obsidian notes"
 readme = "README.md"
 license = "MIT"
