@@ -1,0 +1,50 @@
+[project]
+name = "clear-mind"
+version = "0.1.0"
+description = "An AI companion that grows alongside you through your Obsidian notes"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [{ name = "Clear Mind Contributors" }]
+keywords = ["obsidian", "ai", "agent", "langgraph", "local-first", "entropy-reduction"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing",
+    "Topic :: Office/Business",
+]
+dependencies = [
+    "deepagents>=0.4.0",
+    "langgraph>=0.4.0",
+    "langgraph-checkpoint-sqlite>=2.0.0",
+    "langchain-openai>=0.3.0",
+    "langchain-core>=0.3.0",
+    "typer>=0.15.0",
+    "rich>=13.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "schedule>=1.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+]
+
+[project.scripts]
+clear-mind = "clear_mind.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/clear-mind"
+Repository = "https://github.com/yourusername/clear-mind"
+Issues = "https://github.com/yourusername/clear-mind/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
