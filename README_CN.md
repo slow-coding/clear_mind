@@ -4,7 +4,7 @@
 
 # Clear Mind（清心）
 
-[English](README.md)
+[English](https://github.com/slow-coding/clear_mind/blob/main/README.md)
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/slow-coding/clear_mind/main/guide.gif" alt="Clear Mind 演示" width="100%">

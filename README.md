@@ -4,7 +4,7 @@
 
 # Clear Mind
 
-[中文文档](README_CN.md)
+[中文文档](https://github.com/slow-coding/clear_mind/blob/main/README_CN.md)
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/slow-coding/clear_mind/main/guide.gif" alt="Clear Mind Demo" width="100%">
