@@ -28,6 +28,7 @@ Your Obsidian Vault
 │
 └── _clear_mind/       ← Agent's space. Only here it writes.
     ├── about_user.md      Growing understanding of you
+    ├── knowledge_rules.md Rules learned about your note system
     ├── entropy_log.md     Entropy reduction observations
     ├── reflections/       Daily reflections on what changed
     └── ...
@@ -58,8 +59,12 @@ Your Obsidian Vault
 - **Local-first** — runs on LM Studio, Ollama, or any OpenAI-compatible API. Zero cloud dependency.
 - **Obsidian CLI integration** — uses the official Obsidian CLI (v1.12+) for all vault operations
 - **Hard boundary enforcement** — the agent physically cannot write outside `_clear_mind/`, enforced at the tool level, not just the prompt
+- **Human-in-the-loop** — write operations require your approval before execution (approve/reject)
+- **Streaming output** — agent responses render progressively, no waiting for full completion
+- **Anti-hallucination** — agent must verify facts from the vault before claiming to know anything about you
 - **Heartbeat monitoring** — daily vault change detection with zero token cost when nothing changed
 - **Incremental growth** — `about_user.md` grows with every interaction, building real institutional memory
+- **Learned rules** — agent writes knowledge base rules to `knowledge_rules.md` as it learns your system
 
 ## Quick Start
 
@@ -88,6 +93,8 @@ Interactive setup will ask for:
 4. Model name (default: `qwen3.5-9b`)
 
 This creates a `.env` file and initializes the `_clear_mind/` folder in your vault.
+
+If you `cd` into your Obsidian vault directory first, `init` will auto-detect it.
 
 #### Example: LM Studio with Qwen 3.5
 
@@ -130,6 +137,16 @@ clear-mind chat
 
 Start an interactive conversation. The agent can read your notes, search your vault, and write reflections — but only within its own folder.
 
+**Chat controls:**
+- `Enter` — send message
+- `Ctrl+O` — insert newline (multi-line input)
+- `ESC` — cancel current input (stays in conversation)
+- `Ctrl+D` — exit conversation
+- `/clear` — reset session (clear conversation history, start fresh)
+- `exit`, `quit` — exit
+
+When the agent wants to write to `_clear_mind/`, you'll be prompted to approve or reject the action.
+
 ### Heartbeat
 
 Single run (e.g. via cron):
@@ -165,7 +182,15 @@ All settings are loaded from a `.env` file or environment variables with the `CL
 | `CLEAR_MIND_API_KEY` | `lm-studio` | API key |
 | `CLEAR_MIND_MODEL_NAME` | `qwen3.5-9b` | Model to use |
 | `CLEAR_MIND_HEARTBEAT_CRON` | `0 9 * * *` | Heartbeat schedule (daily at 9am) |
-| `CLEAR_MIND_CHECKPOINTER_PATH` | `~/_clear_mind_state/checkpoints.db` | State persistence path |
+| `CLEAR_MIND_CHECKPOINTER_PATH` | *(auto: vault's `_clear_mind/`)* | State persistence path |
+
+### Reset Agent Memory
+
+```bash
+clear-mind reset
+```
+
+Clears the checkpoint database and resets `_clear_mind/` files to initial templates. Use this when switching vaults or starting fresh.
 
 ## Real-World Example
 
@@ -244,7 +269,7 @@ Clear Mind: 从这篇日记中我了解到：
 | **Runtime** | Standalone CLI agent, runs locally or as a daemon | IDE extension, requires editor session |
 | **LLM** | Local-first (LM Studio, Ollama) | Cloud API (Anthropic, OpenAI) |
 | **Obsidian integration** | Purpose-built Obsidian CLI tools (14 tools) | Generic file read/write |
-| **Write boundary** | Hard enforced: agent can only write to `_clear_mind/` | No boundary: can write anywhere |
+| **Write boundary** | Hard enforced: agent can only write to `_clear_mind/`, with human approval | No boundary: can write anywhere |
 | **Heartbeat** | Built-in: detects vault changes, runs automatically | No automatic scanning |
 | **State** | Persistent across sessions (SQLite checkpointer) | Per-session, no cross-session memory |
 | **Cost** | Zero after setup (local model) | Per-token API cost |
@@ -253,12 +278,14 @@ Clear Mind: 从这篇日记中我了解到：
 
 ```
 clear_mind/
-├── cli.py          Typer CLI (init, chat, heartbeat, serve, doctor)
-├── agent.py        DeepAgents SDK agent assembly
+├── cli.py          Typer CLI (init, chat, heartbeat, serve, doctor, reset)
+├── agent.py        DeepAgents SDK agent assembly + streaming chat loop
+├── input_handler.py Multi-line input with ESC cancellation
+├── hitl.py         Human-in-the-loop tool approval
 ├── obsidian.py     Obsidian CLI tools (14 tools: read, search, write...)
 ├── config.py       pydantic-settings configuration
 ├── heartbeat.py    Vault change scanning + scheduling
-└── prompts.py      System prompts (identity, boundaries, heartbeat)
+└── prompts.py      System prompts (identity, boundaries, anti-hallucination)
 ```
 
 The agent is assembled with [DeepAgents SDK](https://github.com/langchain-ai/deepagents) on top of [LangGraph](https://github.com/langchain-ai/langgraph), using a SQLite checkpointer for state persistence across sessions.

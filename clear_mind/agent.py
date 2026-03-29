@@ -125,15 +125,26 @@ def _stream_agent(agent, console, config, input_data):
 
 def run_chat(agent, thread_id: str = "default") -> None:
     """Run an interactive chat loop in the terminal."""
+    from importlib.metadata import version as pkg_version
+
     from rich.console import Console
 
     from clear_mind.input_handler import get_user_input
 
     console = Console()
     config = {"configurable": {"thread_id": thread_id}}
-    console.print("[bold cyan]Clear Mind[/] - Your AI companion")
-    console.print("Type [dim]exit[/] or [dim]quit[/] to end the session.")
-    console.print("[dim]Enter to send, Ctrl+O for newline, ESC to cancel, clear to reset session.[/]\n")
+
+    ver = pkg_version("clear-mind")
+    console.print(f"[bold cyan]Clear Mind[/] v{ver}")
+    console.print("[dim]Enter to send, Ctrl+O for newline, ESC to cancel, /clear to reset session.[/]")
+    console.print("[dim]Type exit or quit to end the session.[/]\n")
+
+    # Agent greets first
+    _stream_agent(
+        agent, console, config,
+        {"messages": [{"role": "user", "content": "请简单打个招呼，不需要读任何文件。"}]},
+    )
+    console.print()
 
     while True:
         user_input = get_user_input(console)
@@ -148,7 +159,7 @@ def run_chat(agent, thread_id: str = "default") -> None:
             console.print("[dim]Goodbye.[/]")
             break
 
-        if stripped == "clear":
+        if stripped == "/clear":
             thread_id = str(uuid.uuid4())
             config = {"configurable": {"thread_id": thread_id}}
             console.print("[dim]Session cleared.[/]\n")

@@ -28,6 +28,7 @@ Clear Mind 读懂你的笔记，理解你是谁，随时间推移和你一起成
 │
 └── _clear_mind/       ← Agent 的空间。只在这里写入。
     ├── about_user.md      对你的持续理解（越写越懂你）
+    ├── knowledge_rules.md 学到的知识库使用规则
     ├── entropy_log.md     熵减观察记录
     ├── reflections/       每日反思：什么变了，意味着什么
     └── ...
@@ -58,8 +59,12 @@ Clear Mind 读懂你的笔记，理解你是谁，随时间推移和你一起成
 - **本地优先** — 支持 LM Studio、Ollama 或任何 OpenAI 兼容 API，零云端依赖
 - **Obsidian CLI 集成** — 使用官方 Obsidian CLI（v1.12+）进行所有 vault 操作
 - **硬边界强制** — Agent 在代码层面无法写入 `_clear_mind/` 以外的位置，不只是提示词约束
+- **人工审批** — 写操作需要你的确认才能执行（批准/拒绝）
+- **流式输出** — Agent 回复逐字渲染，无需等待全部生成
+- **反幻觉** — Agent 必须从 vault 验证后才能声称了解你
 - **心跳监控** — 每日 vault 变更检测，无变更时零 token 消耗
 - **渐进成长** — `about_user.md` 随每次交互增长，建立真正的长期记忆
+- **学习规则** — Agent 将知识库使用规则写入 `knowledge_rules.md`，越用越懂你
 
 ## 快速开始
 
@@ -88,6 +93,8 @@ clear-mind init
 4. 模型名称（默认：`qwen3.5-9b`）
 
 这会创建 `.env` 文件并在 vault 中初始化 `_clear_mind/` 文件夹。
+
+如果你先 `cd` 到 Obsidian vault 目录，`init` 会自动检测。
 
 #### 示例：LM Studio + Qwen 3.5
 
@@ -130,6 +137,16 @@ clear-mind chat
 
 启动交互式对话。Agent 可以读取你的笔记、搜索 vault、写反思——但只限于自己的文件夹。
 
+**对话控制：**
+- `Enter` — 发送消息
+- `Ctrl+O` — 换行（多行输入）
+- `ESC` — 取消当前输入（不退出对话）
+- `Ctrl+D` — 退出对话
+- `/clear` — 重置会话（清空对话历史，重新开始）
+- `exit`、`quit` — 退出
+
+当 Agent 要写入 `_clear_mind/` 时，会弹出确认提示，你可以批准或拒绝。
+
 ### 心跳
 
 单次运行（适合 cron）：
@@ -165,7 +182,15 @@ clear-mind doctor
 | `CLEAR_MIND_API_KEY` | `lm-studio` | API 密钥 |
 | `CLEAR_MIND_MODEL_NAME` | `qwen3.5-9b` | 使用的模型 |
 | `CLEAR_MIND_HEARTBEAT_CRON` | `0 9 * * *` | 心跳计划（每天上午 9 点） |
-| `CLEAR_MIND_CHECKPOINTER_PATH` | `~/_clear_mind_state/checkpoints.db` | 状态持久化路径 |
+| `CLEAR_MIND_CHECKPOINTER_PATH` | *（自动：vault 的 `_clear_mind/`）* | 状态持久化路径 |
+
+### 重置 Agent 记忆
+
+```bash
+clear-mind reset
+```
+
+清空 checkpoint 数据库并重置 `_clear_mind/` 文件为初始模板。切换 vault 或重新开始时使用。
 
 ## 真实用例
 
@@ -244,7 +269,7 @@ Clear Mind: 从这篇日记中我了解到：
 | **运行方式** | 独立 CLI agent，本地运行或守护进程 | IDE 插件，需要编辑器会话 |
 | **LLM** | 本地优先（LM Studio、Ollama） | 云端 API（Anthropic、OpenAI） |
 | **Obsidian 集成** | 专用 Obsidian CLI 工具（14 个） | 通用文件读写 |
-| **写入边界** | 硬性限制：agent 只能写入 `_clear_mind/` | 无边界：可写任意位置 |
+| **写入边界** | 硬性限制：agent 只能写入 `_clear_mind/`，且需人工审批 | 无边界：可写任意位置 |
 | **心跳** | 内置：自动检测 vault 变更 | 无自动扫描 |
 | **状态** | 跨会话持久化（SQLite checkpointer） | 单次会话，无跨会话记忆 |
 | **成本** | 初始化后零成本（本地模型） | 按 token 计费 |
@@ -253,12 +278,14 @@ Clear Mind: 从这篇日记中我了解到：
 
 ```
 clear_mind/
-├── cli.py          Typer CLI（init, chat, heartbeat, serve, doctor）
-├── agent.py        DeepAgents SDK Agent 组装
+├── cli.py          Typer CLI（init, chat, heartbeat, serve, doctor, reset）
+├── agent.py        DeepAgents SDK Agent 组装 + 流式对话循环
+├── input_handler.py 多行输入处理（ESC 取消、Ctrl+O 换行）
+├── hitl.py         人工审批（写操作确认）
 ├── obsidian.py     Obsidian CLI 工具（14 个工具：读取、搜索、写入...）
 ├── config.py       pydantic-settings 配置管理
 ├── heartbeat.py    Vault 变更扫描 + 调度
-└── prompts.py      系统提示词（身份、边界、心跳）
+└── prompts.py      系统提示词（身份、边界、反幻觉）
 ```
 
 Agent 使用 [DeepAgents SDK](https://github.com/langchain-ai/deepagents) 在 [LangGraph](https://github.com/langchain-ai/langgraph) 上组装，通过 SQLite checkpointer 实现跨会话状态持久化。
